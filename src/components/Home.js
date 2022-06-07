@@ -1,25 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import Login from './components/Login';
-import Home from './components/Home';
-import 'antd/dist/antd.css';
-// import './App.css';
+import React from "react"
+import { Alert, Button } from "antd"
 
-function App() {
-  const [token, setToken] = useState('');
-  useEffect(() => {
-      const _token = localStorage.getItem('token');
-      if(_token){
-          setToken(_token);
-      }
-  }, [])
-  return (
-    <div className="App">
-      {!token
-        ? <Login setToken={setToken} />
-        : <Home token={token} />
-      }
-    </div>
-  );
+export default function Home({token}){
+    const [message, setMessage] = useState("")
+    const  [error, setError] =useState("")
+    const getPrrivateStuff = () => {
+        fetch("http://localhost:5050/private", {
+            headers: {
+                'Authorization': token
+            }
+        })
+        .then(res => res.json())
+        .then(data  => {
+            if(data.error){
+                setError(data.error);
+                setMessage("");
+                return;
+            }
+            setMessage(data.message);
+            setError("")
+        })
+        .catch(error => console.error(err))
+    }
+    return(
+        <>
+            <h1>Home</h1>
+            {message && <Alert message={message} typer="success"  />} 
+            {message && <Alert message={error} typer="error"  />} 
+            <Button OnClick={getPrrivateStuff} type="primary" size="large">Get  Pri </Button>
+        </>
+    )
 }
-
-export default App;
